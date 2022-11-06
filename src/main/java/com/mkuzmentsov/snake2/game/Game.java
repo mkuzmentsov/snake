@@ -18,16 +18,17 @@ public class Game {
 
     private final GameBoard gameBoard;
 
-    private AtomicInteger score = new AtomicInteger(0);
+    private final AtomicInteger score = new AtomicInteger(0);
 
     private List<Supplier<Void>> onTickListeners = new ArrayList<>();
 
-    public Game(GameBoard gameBoard) {
-        this.gameBoard = gameBoard;
+    public Game() {
+        this.gameBoard = new GameBoard(15, this.score::incrementAndGet);
 
         Timeline timeline = new Timeline(new KeyFrame(Duration.millis(500), e -> {
             tick();
         }));
+
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
     }
@@ -36,17 +37,18 @@ public class Game {
         this.onTickListeners.add(onTick);
     }
 
-    public static void initialize() {
-
-    }
-
     public void tick() {
-        gameBoard.tick();
+        try {
+            gameBoard.tick();
+        } catch (Exception e) {
+            gameBoard.initialize();
+            this.score.set(0);
+        }
         this.onTickListeners.forEach(Supplier::get);
     }
 
     public void start() {
-
+        gameBoard.initialize();
     }
 
     public void pause() {
@@ -55,5 +57,13 @@ public class Game {
 
     public void end() {
 
+    }
+
+    public GameBoard getGameBoard() {
+        return gameBoard;
+    }
+
+    public int getScore() {
+        return score.get();
     }
 }

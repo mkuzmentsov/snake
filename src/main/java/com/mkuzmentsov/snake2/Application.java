@@ -20,9 +20,13 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class Application extends javafx.application.Application {
+    Label scoreLabel = new Label("Score: 0");
 
     public void start(Stage stage) {
-        GameBoard gameBoard = new GameBoard(15);
+        Game game = new Game();
+
+        GameBoard gameBoard = game.getGameBoard();
+        gameBoard.initialize();
         GridPane rootPane = new GridPane();
 
         GridPane boardPane = new GridPane();
@@ -30,7 +34,6 @@ public class Application extends javafx.application.Application {
 
         GridPane controlsPane = new GridPane();
 
-        Label scoreLabel = new Label("Score: 0");
         Button startButton = new Button("Start");
         controlsPane.add(scoreLabel, 0, 0);
         controlsPane.add(startButton, 0, 1);
@@ -41,8 +44,12 @@ public class Application extends javafx.application.Application {
         Scene scene = new Scene(rootPane);
         stage.setScene(scene);
 
-        Game game = new Game(gameBoard);
+        startButton.setOnMouseClicked(e -> {
+            gameBoard.initialize();
+        });
+
         game.addTickListener(() -> {
+            scoreLabel.setText("Score: " + game.getScore());
             drawBoard(boardPane, gameBoard);
             return null;
         });

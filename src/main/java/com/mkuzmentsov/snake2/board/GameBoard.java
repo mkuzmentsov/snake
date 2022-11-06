@@ -11,16 +11,25 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class GameBoard {
 
+    private final int size;
     CellVisitor cellVisitor = new CellVisitor(this);
-    private final BoardCell[][] cells;
+    private BoardCell[][] cells;
 
-    private final List<BoardCell> snakeCells;
+    private List<BoardCell> snakeCells;
     private BoardCell mealCell;
 
     private Direction snakeDirection = Direction.UP;
 
-    public GameBoard(int size) {
+    public final Runnable onMealConsumed;
+
+    public GameBoard(int size, Runnable onMealConsumed) {
+        this.size = size;
+        this.onMealConsumed = onMealConsumed;
+    }
+
+    public void initialize() {
         cells = new BoardCell[size][size];
+        snakeDirection = Direction.UP;
 
         snakeCells = new ArrayList<>(size);
         snakeCells.add(new BoardCell(new SnakeCell(), 1 , 1));
@@ -81,7 +90,7 @@ public class GameBoard {
         fillSnakeCells();
 
         generateMealCell();
-        System.out.println(mealCell.x() + " " + mealCell.y());
+        this.onMealConsumed.run();
     }
 
     public void generateBaseBoard() {
